@@ -1,4 +1,4 @@
-import sendTransaction from "../src/index";
+import {sendTransaction} from "../src/index";
 
 /**
  * Has to be validated on Gnosis frontend interface
