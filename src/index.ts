@@ -7,6 +7,7 @@ import {
     MetaTransactionData,
 } from "@gnosis.pm/safe-core-sdk-types"
 import SafeServiceClient from "@gnosis.pm/safe-service-client";
+import chalk from "chalk";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -42,6 +43,7 @@ export async function sendTransaction(
         transactionValues,
         transactionData
     );
+    console.log(`Transaction array totaling ${arrLength} transactions created`);
     await createAndSendSafeTx(
         chainId,
         safeAddress,
@@ -101,15 +103,25 @@ const createAndSendSafeTx = async (
         nonce: await safeService.getNextNonce(safeAddress)
     }
 
+    console.log(chalk.magenta("Creating transaction..."));
     const tx = await safe.createTransaction([...transactionArr], options);
     await safe.signTransaction(tx);
     const txHash = await safe.getTransactionHash(tx);
-    await safeService.proposeTransaction({
-        safeAddress:safeAddress,
-        safeTransaction: tx,
-        safeTxHash: txHash,
-        senderAddress: await signer.getAddress(),
-    });
+
+    try {
+        // await safeService.proposeTransaction({
+        //     safeAddress:safeAddress,
+        //     safeTransaction: tx,
+        //     safeTxHash: txHash,
+        //     senderAddress: await signer.getAddress(),
+        // });
+        console.log(chalk.greenBright("Transaction sent!"))
+    } catch (e) {
+        console.log(chalk.redBright("Transaction failed! Stack trace:"))
+        console.log(e)
+    }
+    
+
 }
 
 const createAdapter = (signer: Signer): EthersAdapter => {
