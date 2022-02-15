@@ -14,9 +14,9 @@ dotenv.config();
 
 /**
  * Notes
- *  Add console logs
  *  Probably want to figure out how to make script able to determine which network to put in URL
- *      Enum? 
+ *      Enum with corresponding networks that can be inserted into URL
+ *  Create package 
  */
 
 const TX_URL = "https://safe-transaction.goerli.gnosis.io";
@@ -109,12 +109,12 @@ const createAndSendSafeTx = async (
     const txHash = await safe.getTransactionHash(tx);
 
     try {
-        // await safeService.proposeTransaction({
-        //     safeAddress:safeAddress,
-        //     safeTransaction: tx,
-        //     safeTxHash: txHash,
-        //     senderAddress: await signer.getAddress(),
-        // });
+        await safeService.proposeTransaction({
+            safeAddress:safeAddress,
+            safeTransaction: tx,
+            safeTxHash: txHash,
+            senderAddress: await signer.getAddress(),
+        });
         console.log(chalk.greenBright("Transaction sent!"))
     } catch (e) {
         console.log(chalk.redBright("Transaction failed! Stack trace:"))
