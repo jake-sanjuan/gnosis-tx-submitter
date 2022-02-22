@@ -12,22 +12,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-/**
- * Notes
- *  Probably want to figure out how to make script able to determine which network to put in URL
- *      Enum with corresponding networks that can be inserted into URL
- *  Create package 
- */
-
-const NETWORKS = {
-    1: "mainnet",
-    4: "rinkeby",
-    5: "goerli",
-    10: "optimism",
-    137: "polygon",
-    421611: "arbitrum",
-}
-
 export async function sendTransaction(
     safeAddress: string,
     transactionTargetAddresses: string[],
