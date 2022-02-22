@@ -19,7 +19,14 @@ dotenv.config();
  *  Create package 
  */
 
-const TX_URL = "https://safe-transaction.goerli.gnosis.io";
+const NETWORKS = {
+    1: "mainnet",
+    4: "rinkeby",
+    5: "goerli",
+    10: "optimism",
+    137: "polygon",
+    421611: "arbitrum",
+}
 
 export async function sendTransaction(
     safeAddress: string,
@@ -30,10 +37,7 @@ export async function sendTransaction(
 ): Promise<void> {
 
     let arrLength: number = transactionTargetAddresses.length;
-    if(
-        arrLength !== transactionData.length || 
-        arrLength !== transactionValues.length
-    ) { 
+    if(arrLength !== transactionData.length || arrLength !== transactionValues.length) { 
         throw new Error("Mismatch array length"); 
     }
 
@@ -44,11 +48,40 @@ export async function sendTransaction(
         transactionData
     );
     console.log(`Transaction array totaling ${arrLength} transactions created`);
-    await createAndSendSafeTx(
-        chainId,
-        safeAddress,
-        transactionArr
-    );
+
+    let txUrl = getTxUrl(chainId);
+    const signer = getSigner(chainId);
+    const adapter = new EthersAdapter({
+        ethers: ethers,
+        signer: signer
+    });
+    const safe:Safe = await Safe.create({
+        ethAdapter: adapter,
+        safeAddress: safeAddress
+    });
+
+    const safeService  = new SafeServiceClient(txUrl);
+    const options: SafeTransactionOptionalProps = {
+        nonce: await safeService.getNextNonce(safeAddress)
+    }
+
+    console.log(chalk.magenta("Creating transaction..."));
+    const tx = await safe.createTransaction([...transactionArr], options);
+    await safe.signTransaction(tx);
+    const txHash = await safe.getTransactionHash(tx);
+
+    try {
+        await safeService.proposeTransaction({
+            safeAddress:safeAddress,
+            safeTransaction: tx,
+            safeTxHash: txHash,
+            senderAddress: await signer.getAddress(),
+        });
+        console.log(chalk.greenBright("Transaction sent!"))
+    } catch (e) {
+        console.log(chalk.redBright("Transaction failed! Stack trace:"))
+        console.log(e)
+    }
 }
 
 const getSigner = (chainId: number): Signer => {
@@ -85,48 +118,30 @@ const createTxArray = (
     return transactionArr;
 }
 
-// Call to other function to figure out URL
-const createAndSendSafeTx = async (
-    chainId: number,
-    safeAddress: string,
-    transactionArr: SafeTransactionDataPartial[] | MetaTransactionData[],
-): Promise<void> => {
-    const signer = getSigner(chainId);
-    const adapter: EthersAdapter = createAdapter(signer);
-    const safe:Safe = await Safe.create({
-        ethAdapter: adapter,
-        safeAddress: safeAddress
-    });
+const getTxUrl = (chainId: number): string => {
 
-    const safeService  = new SafeServiceClient(TX_URL);
-    const options: SafeTransactionOptionalProps = {
-        nonce: await safeService.getNextNonce(safeAddress)
+    let network;
+    switch (chainId) {
+        case 1: 
+            network = "mainnet";
+            break;
+        case 4:
+            network = "rinkeby";
+            break;
+        case 5: 
+            network = "goerli";
+            break;
+        case 10:
+            network = "optimisim";
+            break;
+        case 137:
+            network = "polygon";
+            break;
+        case 421611: 
+            network = "arbitrum";
+            break;
+        default:
+            throw new Error("Chain ID does not exist");
     }
-
-    console.log(chalk.magenta("Creating transaction..."));
-    const tx = await safe.createTransaction([...transactionArr], options);
-    await safe.signTransaction(tx);
-    const txHash = await safe.getTransactionHash(tx);
-
-    try {
-        await safeService.proposeTransaction({
-            safeAddress:safeAddress,
-            safeTransaction: tx,
-            safeTxHash: txHash,
-            senderAddress: await signer.getAddress(),
-        });
-        console.log(chalk.greenBright("Transaction sent!"))
-    } catch (e) {
-        console.log(chalk.redBright("Transaction failed! Stack trace:"))
-        console.log(e)
-    }
-    
-
-}
-
-const createAdapter = (signer: Signer): EthersAdapter => {
-    return new EthersAdapter({
-        ethers: ethers,
-        signer: signer
-    });
+    return `https://safe-transaction.${network}.gnosis.io`
 }
