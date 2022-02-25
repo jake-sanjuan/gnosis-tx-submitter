@@ -4,6 +4,7 @@
   "description": "Submits batch transactions to Gnosis safe",
   "main": "src/index.ts",
   "types": "src/index.d.ts",
+  "type": "commonjs",
   "repository": {
     "url": "https://github.com/jake-sanjuan/gnosis-tx-submitter",
     "type": "git"
@@ -11,14 +12,14 @@
   "author": "Jake San Juan <jacob@tokemak.xyz>",
   "license": "MIT",
   "devDependencies": {
-    "@gnosis.pm/safe-core-sdk": "^2.0.0",
-    "@gnosis.pm/safe-ethers-lib": "^1.0.0",
-    "@gnosis.pm/safe-service-client": "^1.1.1",
-    "dotenv": "^16.0.0",
-    "ethers": "^5.5.4",
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "chalk": "4.0.0"
+    "@gnosis.pm/safe-core-sdk": "^2.0.0",
+    "@gnosis.pm/safe-ethers-lib": "^1.0.0",
+    "@gnosis.pm/safe-service-client": "^1.1.1",
+    "chalk": "4.0.0",
+    "dotenv": "^16.0.0",
+    "ethers": "^5.5.4"
   }
 }
