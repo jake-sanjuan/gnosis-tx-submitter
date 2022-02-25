@@ -21,13 +21,13 @@ ALCHEMY_KEY=...
 
 To start using the transaction submitter, import `sendTransaction()` into your script
 
-```
+```typescript
 import { sendTransaction } from "gnosis-tx-submitter"
 ```
 
 In order to actually submit a transaction, a safe address, an array of target addresses, an array of values, an array of transaction data, and a chainId must be passed into the `sendTransaction()` function.  The values will be value in Ether, and can be set to 0 if no Ether is being sent
 
-```
+```typescript
 const safeAddress = "0xabc...";
 const targetAddressArray = ["0xcba", "0xecd"];
 const valueArray = ["0", "1.25"];
