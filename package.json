@@ -1,6 +1,6 @@
 {
   "name": "gnosis-tx-submitter",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Submits batch transactions to Gnosis safe",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
