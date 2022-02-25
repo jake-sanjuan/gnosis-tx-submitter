@@ -3,7 +3,11 @@
   "version": "0.0.1",
   "description": "Submits batch transactions to Gnosis safe",
   "main": "index.js",
-  "author": "Jacob San Juan <contactjsj42@gmail.com>",
+  "repository": {
+    "url": "https://github.com/jake-sanjuan/gnosis-tx-submitter",
+    "type": "git"
+  },
+  "author": "Jake San Juan <jacob@tokemak.xyz>",
   "license": "MIT",
   "devDependencies": {
     "@gnosis.pm/safe-core-sdk": "^2.0.0",

@@ -116,7 +116,7 @@ const getTxUrl = (chainId: number): string => {
             network = "goerli";
             break;
         case 10:
-            network = "optimisim";
+            network = "optimism";
             break;
         case 137:
             network = "polygon";
