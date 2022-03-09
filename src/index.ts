@@ -12,6 +12,16 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+/**
+ * This asynchronous function will send transactions to the supplied Gnosis Safe address to be signed by the safe owners
+ * 
+ * @param {string} safeAddress - Address of the safe that transactions will be sent to
+ * @param {string[]} transactionTargetAddresses - An array of the addresses that safe transactions will interact with
+ * @param {string[]}transactionValues - An array of corresponding values that will be sent with transactions
+ * @param {string[]} transactionData - An array of bytecode data to be sent with the transactions when interacting with smart contracts
+ * @param {number} [chainId=1] - An optional chaind Id parameter corresponding with the chain the Gnosis Safe is on
+ * @return {Promise<void>} - No return value
+ */
 export async function sendTransaction(
     safeAddress: string,
     transactionTargetAddresses: string[],
@@ -68,15 +78,36 @@ export async function sendTransaction(
     }
 }
 
+/**
+ * A function that returns a new ethers.js Signer with the users private key
+ * 
+ * @param {number} chainId - The chain Id corresponsing with the chain the Gnosis Safe is on
+ * @return {Signer} - Returns an ethers.js Signer type
+ */
 const getSigner = (chainId: number): Signer => {
     const provider = getProvider(chainId);
     return new ethers.Wallet(process.env.PRIVATE_KEY!, provider) as Signer;
 }
 
+/**
+ * A function that returns an ethers.js Alchemy provider
+ * 
+ * @param {number} chainId - The chain Id corresponding with the chain the Gnosis Safe is on
+ * @returns {ethers.providers.AlchemyProvider} An ethers.js provider type connected to Alchemy
+ */
 const getProvider = (chainId: number): ethers.providers.AlchemyProvider =>  {
     return new ethers.providers.AlchemyProvider(chainId, process.env.ALCHEMY_KEY)
 }
 
+/**
+ * A function that creates and returns the formatted data to be passed to the Gnosis Safe
+ * 
+ * @param {number} arrLength - The length of the arrays
+ * @param {string[]} addresses - An array with all of the addresses to be interacted with
+ * @param {string[]} values - An array containing the values for each corresponding transaction
+ * @param {string[]} data - An array containing the data for the corresponding transactions
+ * @returns {SafeTransactionDataPartial[] | MetaTransactionData[]} - Array of objects dependent on length of data
+ */
 const createTxArray = (
     arrLength: number,
     addresses: string[],
@@ -102,6 +133,12 @@ const createTxArray = (
     return transactionArr;
 }
 
+/**
+ * Function that formats the url that will be used to post transaction to Gnosis
+ * 
+ * @param {number} chainId - ChainId corresponding with the chain the Gnosis Safe is deployed on
+ * @returns {string} - Url that will be used to post transaction to Gnosis
+ */
 const getTxUrl = (chainId: number): string => {
 
     let network;
