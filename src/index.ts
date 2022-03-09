@@ -13,35 +13,35 @@ import dotenv from "dotenv";
 dotenv.config();
 
 /**
+ * @typedef {Object} Transaction - Defines a single transaction to be submitted to the Gnosis Safe
+ * @property {string} transactionTargetAddress - Ethereum address that transaction will interact with
+ * @property {ethers.BigNumber} transactionValue - The Ether value that corresponds with this transaction
+ * @property {string} transactionData - The data that corresponds with this transaction
+ */
+export type Transaction = {
+  transactionTargetAddress: string;
+  transactionValue: ethers.BigNumber;
+  transactionData: string;
+}
+
+/**
  * This asynchronous function will send transactions to the supplied Gnosis Safe address to be signed by the safe owners
  * 
  * @param {string} safeAddress - Address of the safe that transactions will be sent to
- * @param {string[]} transactionTargetAddresses - An array of the addresses that safe transactions will interact with
- * @param {ethers.BigNumber[]}transactionValues - An array of corresponding values that will be sent with transactions
- * @param {string[]} transactionData - An array of bytecode data to be sent with the transactions when interacting with smart contracts
+ * @param {Transaction[]} transactions - Array of transaction objects
  * @param {number} [chainId=1] - An optional chaind Id parameter corresponding with the chain the Gnosis Safe is on
  * @return {Promise<void>} - No return value
  */
 export async function sendTransaction(
     safeAddress: string,
-    transactionTargetAddresses: string[],
-    transactionValues: ethers.BigNumber[],
-    transactionData: string[],
+    transactions: Transaction[],
     chainId: number = 1
 ): Promise<void> {
 
-    let arrLength: number = transactionTargetAddresses.length;
-    if(arrLength !== transactionData.length || arrLength !== transactionValues.length) { 
-        throw new Error("Mismatch array length"); 
-    }
-
     const transactionArr = createTxArray(
-        arrLength,
-        transactionTargetAddresses,
-        transactionValues,
-        transactionData
+        transactions
     );
-    console.log(`Transaction array totaling ${arrLength} transactions created`);
+    console.log(`Transaction array totaling ${transactionArr.length} transactions created`);
 
     let txUrl = getTxUrl(chainId);
     const signer = getSigner(chainId);
@@ -102,31 +102,26 @@ const getProvider = (chainId: number): ethers.providers.AlchemyProvider =>  {
 /**
  * A function that creates and returns the formatted data to be passed to the Gnosis Safe
  * 
- * @param {number} arrLength - The length of the arrays
- * @param {string[]} addresses - An array with all of the addresses to be interacted with
- * @param {ethers.BigNumber[]} values - An array containing the values for each corresponding transaction
- * @param {string[]} data - An array containing the data for the corresponding transactions
+ * @param {Transaction[]} transactions - Array of Transaction objects
  * @returns {SafeTransactionDataPartial[] | MetaTransactionData[]} - Array of objects dependent on length of data
  */
 const createTxArray = (
-    arrLength: number,
-    addresses: string[],
-    values: ethers.BigNumber[],
-    data: string[]
+    transactions: Transaction[]
 ): SafeTransactionDataPartial[] | MetaTransactionData[] => {
     let transactionArr: SafeTransactionDataPartial[] | MetaTransactionData[] = [];
+    let arrLength = transactions.length;
     if(arrLength === 1) {
         transactionArr.push({
-            to: addresses[0],
-            value: values[0].toString(),
-            data: data[0]
+            to: transactions[0].transactionTargetAddress,
+            value: transactions[0].transactionValue.toString(),
+            data: transactions[0].transactionData
         } as SafeTransactionDataPartial);
     } else {
         for (let i = 0; i < arrLength; i++) {
             transactionArr.push({
-                to: addresses[i],
-                value: values[i].toString(),
-                data: data[i],
+              to: transactions[i].transactionTargetAddress,
+              value: transactions[i].transactionValue.toString(),
+              data: transactions[i].transactionData
             } as MetaTransactionData);
         }
     }
