@@ -43,7 +43,7 @@ await sendTransaction(
 )
 ```
 
-The transaction submitter currently supports mainnet, rinkeby, goerli, optimism, polygon and arbutrum chains.
+The transaction submitter currently supports mainnet, rinkeby, goerli, optimism, polygon and arbitrum chains.
 
 
 
