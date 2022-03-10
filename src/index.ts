@@ -8,9 +8,6 @@ import {
 } from "@gnosis.pm/safe-core-sdk-types"
 import SafeServiceClient from "@gnosis.pm/safe-service-client";
 import chalk from "chalk";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 /**
  * @typedef {Object} Transaction - Defines a single transaction to be submitted to the Gnosis Safe
@@ -30,11 +27,15 @@ export type Transaction = {
  * @param {string} safeAddress - Address of the safe that transactions will be sent to
  * @param {Transaction[]} transactions - Array of transaction objects
  * @param {number} [chainId=1] - An optional chaind Id parameter corresponding with the chain the Gnosis Safe is on
+ * @param {string} privateKey - Private key for Ethereum address. Must be for signer on Gnosis safe safeAddress 
+ * @param {string} alchemyKey - Alchemy api key
  * @return {Promise<void>} - No return value
  */
 export async function sendTransaction(
     safeAddress: string,
     transactions: Transaction[],
+    privateKey: string,
+    alchemyKey: string,
     chainId: number = 1
 ): Promise<void> {
 
@@ -44,7 +45,8 @@ export async function sendTransaction(
     console.log(`Transaction array totaling ${transactionArr.length} transactions created`);
 
     let txUrl = getTxUrl(chainId);
-    const signer = getSigner(chainId);
+    const provider = getProvider(chainId);
+    const signer = getSigner(privateKey, provider);
     const adapter = new EthersAdapter({
         ethers: ethers,
         signer: signer
@@ -81,12 +83,12 @@ export async function sendTransaction(
 /**
  * A function that returns a new ethers.js Signer with the users private key
  * 
- * @param {number} chainId - The chain Id corresponsing with the chain the Gnosis Safe is on
+ * @param {string} privateKey - Private key for Ethereum address. Must be for signer on Gnosis safe safeAddress 
+ * @param {ethers.providers.AlchemyProvider} - ethers.js Alchemy provider
  * @return {Signer} - Returns an ethers.js Signer type
  */
-const getSigner = (chainId: number): Signer => {
-    const provider = getProvider(chainId);
-    return new ethers.Wallet(process.env.PRIVATE_KEY!, provider) as Signer;
+const getSigner = (privateKey: string, provider: ethers.providers.AlchemyProvider): Signer => {
+    return new ethers.Wallet(privateKey, provider) as Signer;
 }
 
 /**

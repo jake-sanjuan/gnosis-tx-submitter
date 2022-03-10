@@ -1,5 +1,8 @@
 import {sendTransaction, Transaction} from "../src/index";
 import {ethers} from "ethers";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const zero = ethers.BigNumber.from(0);
 
@@ -23,6 +26,8 @@ async function testBatchTransaction() {
     await sendTransaction(
         "0x52967DA31f243Eb9F35f151643Ab9D30e445B1C6",
         tx,
+        process.env.PRIVATE_KEY!,
+        process.env.ALCHEMY_KEY!,
         5
     )
 }
